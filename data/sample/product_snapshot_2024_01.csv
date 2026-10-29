@@ -1,0 +1,91 @@
+product_code,product_name,product_group,category,brand,muadil_id,lifecycle_status,list_price,launch_date,phaseout_date,sourcing_type
+AF10000,Anka Ankastre Fırın 000,Ankastre Fırın,Pişirici,Anka,,Planlandı,29450.0,2025-09-01,,Üretim
+AF10001,Lumo Ankastre Fırın 001,Ankastre Fırın,Pişirici,Lumo,,Aktif,28150.0,2022-09-01,,Üretim
+AF10002,Teras Ankastre Fırın 002,Ankastre Fırın,Pişirici,Teras,M0001,Pasif,25590.0,2022-10-01,2025-01-01,Üretim
+AF10003,Teras Ankastre Fırın 003,Ankastre Fırın,Pişirici,Teras,M0001,Aktif,27640.0,2024-11-01,,Üretim
+AF10004,Anka Ankastre Fırın 004,Ankastre Fırın,Pişirici,Anka,M0002,Aktif,23980.0,2021-10-01,2026-01-01,Üretim
+AF10005,Anka Ankastre Fırın 005,Ankastre Fırın,Pişirici,Anka,M0002,Planlandı,25900.0,2025-11-01,,Üretim
+AF10006,Lumo Ankastre Fırın 006,Ankastre Fırın,Pişirici,Lumo,,Aktif,27650.0,2023-09-01,,Üretim
+AF10007,Teras Ankastre Fırın 007,Ankastre Fırın,Pişirici,Teras,,Aktif,28010.0,2022-02-01,,Üretim
+AF10008,Anka Ankastre Fırın 008,Ankastre Fırın,Pişirici,Anka,M0003,Pasif,26290.0,2021-09-01,2025-02-01,Üretim
+AF10009,Anka Ankastre Fırın 009,Ankastre Fırın,Pişirici,Anka,M0003,Aktif,28390.0,2024-12-01,,Üretim
+AF10010,Anka Ankastre Fırın 010,Ankastre Fırın,Pişirici,Anka,,Aktif,20670.0,2022-02-01,,Üretim
+AF10011,Anka Ankastre Fırın 011,Ankastre Fırın,Pişirici,Anka,M0004,Pasif,22560.0,2023-02-01,2025-04-01,Üretim
+AF10012,Anka Ankastre Fırın 012,Ankastre Fırın,Pişirici,Anka,M0004,Yeni,24360.0,2025-02-01,,Üretim
+AF10013,Anka Ankastre Fırın 013,Ankastre Fırın,Pişirici,Anka,,Aktif,28990.0,2022-05-01,,Üretim
+AF10014,Lumo Ankastre Fırın 014,Ankastre Fırın,Pişirici,Lumo,,Aktif,20970.0,2022-04-01,,Üretim
+AF10015,Anka Ankastre Fırın 015,Ankastre Fırın,Pişirici,Anka,,Aktif,17600.0,2022-01-01,,Üretim
+AF10016,Lumo Ankastre Fırın 016,Ankastre Fırın,Pişirici,Lumo,,Aktif,28050.0,2023-10-01,,Üretim
+AF10017,Anka Ankastre Fırın 017,Ankastre Fırın,Pişirici,Anka,,Aktif,16060.0,2022-11-01,,Üretim
+AF10018,Lumo Ankastre Fırın 018,Ankastre Fırın,Pişirici,Lumo,,Aktif,25420.0,2022-04-01,,Üretim
+AF10019,Anka Ankastre Fırın 019,Ankastre Fırın,Pişirici,Anka,,Aktif,14550.0,2023-01-01,,Üretim
+AF10020,Teras Ankastre Fırın 020,Ankastre Fırın,Pişirici,Teras,M0005,Pasif,18210.0,2021-12-01,2025-06-01,Üretim
+AF10021,Teras Ankastre Fırın 021,Ankastre Fırın,Pişirici,Teras,M0005,Yeni,19670.0,2025-04-01,,Üretim
+SO10000,Anka Set Üstü Ocak 000,Set Üstü Ocak,Pişirici,Anka,M0006,Pasif,13940.0,2023-04-01,2024-12-01,Üretim
+SO10001,Anka Set Üstü Ocak 001,Set Üstü Ocak,Pişirici,Anka,M0006,Aktif,15060.0,2024-10-01,,Üretim
+SO10002,Lumo Set Üstü Ocak 002,Set Üstü Ocak,Pişirici,Lumo,,Aktif,10880.0,2022-07-01,,Üretim
+SO10003,Anka Set Üstü Ocak 003,Set Üstü Ocak,Pişirici,Anka,M0007,Aktif,7080.0,2022-02-01,2025-12-01,Üretim
+SO10004,Anka Set Üstü Ocak 004,Set Üstü Ocak,Pişirici,Anka,M0007,Planlandı,7650.0,2025-10-01,,Üretim
+SO10005,Anka Set Üstü Ocak 005,Set Üstü Ocak,Pişirici,Anka,,Aktif,12010.0,2021-09-01,,Üretim
+SO10006,Anka Set Üstü Ocak 006,Set Üstü Ocak,Pişirici,Anka,M0008,Pasif,9620.0,2022-03-01,2025-01-01,Üretim
+SO10007,Anka Set Üstü Ocak 007,Set Üstü Ocak,Pişirici,Anka,M0008,Aktif,10390.0,2024-11-01,,Üretim
+SO10008,Anka Set Üstü Ocak 008,Set Üstü Ocak,Pişirici,Anka,M0009,Çıkışta,7420.0,2022-11-01,2025-10-01,Üretim
+SO10009,Anka Set Üstü Ocak 009,Set Üstü Ocak,Pişirici,Anka,M0009,Planlandı,8010.0,2025-08-01,,Üretim
+SO10010,Lumo Set Üstü Ocak 010,Set Üstü Ocak,Pişirici,Lumo,,Aktif,9190.0,2021-09-01,,Üretim
+SO10011,Lumo Set Üstü Ocak 011,Set Üstü Ocak,Pişirici,Lumo,,Aktif,11390.0,2024-10-01,,Üretim
+SO10012,Anka Set Üstü Ocak 012,Set Üstü Ocak,Pişirici,Anka,,Aktif,8430.0,2022-03-01,,Üretim
+SO10013,Teras Set Üstü Ocak 013,Set Üstü Ocak,Pişirici,Teras,M0010,Pasif,15100.0,2022-08-01,2025-04-01,Üretim
+SO10014,Teras Set Üstü Ocak 014,Set Üstü Ocak,Pişirici,Teras,M0010,Yeni,16310.0,2025-02-01,,Üretim
+SO10015,Lumo Set Üstü Ocak 015,Set Üstü Ocak,Pişirici,Lumo,M0011,Aktif,13010.0,2023-05-01,2025-11-01,Üretim
+SO10016,Lumo Set Üstü Ocak 016,Set Üstü Ocak,Pişirici,Lumo,M0011,Planlandı,14050.0,2025-09-01,,Üretim
+SO10017,Anka Set Üstü Ocak 017,Set Üstü Ocak,Pişirici,Anka,,Aktif,6500.0,2022-05-01,,Üretim
+SF10000,Anka Solo Fırın 000,Solo Fırın,Pişirici,Anka,M0012,Pasif,9720.0,2022-05-01,2025-02-01,Üretim
+SF10001,Anka Solo Fırın 001,Solo Fırın,Pişirici,Anka,M0012,Aktif,10500.0,2024-12-01,,Üretim
+SF10002,Teras Solo Fırın 002,Solo Fırın,Pişirici,Teras,M0013,Çıkışta,13070.0,2022-11-01,2025-07-01,Üretim
+SF10003,Teras Solo Fırın 003,Solo Fırın,Pişirici,Teras,M0013,Yeni,14120.0,2025-05-01,,Üretim
+SF10004,Anka Solo Fırın 004,Solo Fırın,Pişirici,Anka,,Aktif,15710.0,2022-11-01,,Üretim
+SF10005,Anka Solo Fırın 005,Solo Fırın,Pişirici,Anka,M0014,Çıkışta,12430.0,2022-09-01,2025-07-01,Üretim
+SF10006,Anka Solo Fırın 006,Solo Fırın,Pişirici,Anka,M0014,Yeni,13420.0,2025-05-01,,Üretim
+SF10007,Anka Solo Fırın 007,Solo Fırın,Pişirici,Anka,,Aktif,10870.0,2021-09-01,,Üretim
+SF10008,Anka Solo Fırın 008,Solo Fırın,Pişirici,Anka,,Aktif,9150.0,2023-01-01,,Üretim
+SF10009,Anka Solo Fırın 009,Solo Fırın,Pişirici,Anka,,Aktif,9760.0,2021-12-01,,Üretim
+DV10000,Lumo Davlumbaz 000,Davlumbaz,Pişirici,Lumo,M0015,Aktif,12270.0,2022-01-01,2026-03-01,Satınalma
+DV10001,Lumo Davlumbaz 001,Davlumbaz,Pişirici,Lumo,M0015,Planlandı,13250.0,2026-01-01,,Satınalma
+DV10002,Teras Davlumbaz 002,Davlumbaz,Pişirici,Teras,M0016,Pasif,7300.0,2023-07-01,2025-03-01,Satınalma
+DV10003,Teras Davlumbaz 003,Davlumbaz,Pişirici,Teras,M0016,Yeni,7880.0,2025-01-01,,Satınalma
+DV10004,Anka Davlumbaz 004,Davlumbaz,Pişirici,Anka,,Aktif,13300.0,2022-10-01,,Satınalma
+DV10005,Anka Davlumbaz 005,Davlumbaz,Pişirici,Anka,,Aktif,10150.0,2022-01-01,,Satınalma
+DV10006,Anka Davlumbaz 006,Davlumbaz,Pişirici,Anka,,Aktif,5450.0,2023-02-01,,Satınalma
+DV10007,Lumo Davlumbaz 007,Davlumbaz,Pişirici,Lumo,,Aktif,13910.0,2022-11-01,,Satınalma
+DV10008,Anka Davlumbaz 008,Davlumbaz,Pişirici,Anka,,Aktif,12720.0,2023-01-01,,Satınalma
+DV10009,Lumo Davlumbaz 009,Davlumbaz,Pişirici,Lumo,M0017,Çıkışta,7620.0,2023-07-01,2025-10-01,Satınalma
+DV10010,Lumo Davlumbaz 010,Davlumbaz,Pişirici,Lumo,M0017,Planlandı,8230.0,2025-08-01,,Satınalma
+DV10011,Anka Davlumbaz 011,Davlumbaz,Pişirici,Anka,M0018,Aktif,13310.0,2021-10-01,2026-03-01,Satınalma
+DV10012,Anka Davlumbaz 012,Davlumbaz,Pişirici,Anka,M0018,Planlandı,14370.0,2026-01-01,,Satınalma
+DV10013,Anka Davlumbaz 013,Davlumbaz,Pişirici,Anka,,Aktif,13750.0,2023-06-01,,Satınalma
+MD10000,Lumo Mikrodalga 000,Mikrodalga,Pişirici,Lumo,M0019,Çıkışta,8860.0,2022-07-01,2025-07-01,Satınalma
+MD10001,Lumo Mikrodalga 001,Mikrodalga,Pişirici,Lumo,M0019,Yeni,9570.0,2025-05-01,,Satınalma
+MD10002,Anka Mikrodalga 002,Mikrodalga,Pişirici,Anka,M0020,Pasif,5150.0,2023-04-01,2025-04-01,Satınalma
+MD10003,Anka Mikrodalga 003,Mikrodalga,Pişirici,Anka,M0020,Yeni,5560.0,2025-02-01,,Satınalma
+MD10004,Anka Mikrodalga 004,Mikrodalga,Pişirici,Anka,,Aktif,6530.0,2021-09-01,,Satınalma
+MD10005,Lumo Mikrodalga 005,Mikrodalga,Pişirici,Lumo,M0021,Aktif,7580.0,2023-05-01,2025-11-01,Satınalma
+MD10006,Lumo Mikrodalga 006,Mikrodalga,Pişirici,Lumo,M0021,Planlandı,8190.0,2025-09-01,,Satınalma
+MD10007,Anka Mikrodalga 007,Mikrodalga,Pişirici,Anka,,Aktif,8640.0,2022-03-01,,Satınalma
+ET10000,Anka Elektrikli Termosifon 000,Elektrikli Termosifon,Termosifon,Anka,M0022,Pasif,9150.0,2021-09-01,2025-04-01,Üretim
+ET10001,Anka Elektrikli Termosifon 001,Elektrikli Termosifon,Termosifon,Anka,M0022,Yeni,9880.0,2025-02-01,,Üretim
+ET10002,Teras Elektrikli Termosifon 002,Elektrikli Termosifon,Termosifon,Teras,M0023,Çıkışta,5640.0,2022-06-01,2025-09-01,Üretim
+ET10003,Teras Elektrikli Termosifon 003,Elektrikli Termosifon,Termosifon,Teras,M0023,Planlandı,6090.0,2025-07-01,,Üretim
+ET10004,Anka Elektrikli Termosifon 004,Elektrikli Termosifon,Termosifon,Anka,,Aktif,6270.0,2022-02-01,,Üretim
+ET10005,Teras Elektrikli Termosifon 005,Elektrikli Termosifon,Termosifon,Teras,,Aktif,9920.0,2022-11-01,,Üretim
+ET10006,Anka Elektrikli Termosifon 006,Elektrikli Termosifon,Termosifon,Anka,,Aktif,6100.0,2023-03-01,,Üretim
+ET10007,Anka Elektrikli Termosifon 007,Elektrikli Termosifon,Termosifon,Anka,M0024,Aktif,8830.0,2021-09-01,2026-01-01,Üretim
+ET10008,Anka Elektrikli Termosifon 008,Elektrikli Termosifon,Termosifon,Anka,M0024,Planlandı,9540.0,2025-11-01,,Üretim
+ET10009,Anka Elektrikli Termosifon 009,Elektrikli Termosifon,Termosifon,Anka,,Aktif,7560.0,2021-11-01,,Üretim
+ET10010,Teras Elektrikli Termosifon 010,Elektrikli Termosifon,Termosifon,Teras,,Aktif,8000.0,2022-08-01,,Üretim
+ET10011,Lumo Elektrikli Termosifon 011,Elektrikli Termosifon,Termosifon,Lumo,,Yeni,6080.0,2025-03-01,,Üretim
+AI10000,Lumo Anında Isıtıcı 000,Anında Isıtıcı,Termosifon,Lumo,M0025,Çıkışta,3590.0,2021-09-01,2025-09-01,Satınalma
+AI10001,Lumo Anında Isıtıcı 001,Anında Isıtıcı,Termosifon,Lumo,M0025,Planlandı,3880.0,2025-07-01,,Satınalma
+AI10002,Anka Anında Isıtıcı 002,Anında Isıtıcı,Termosifon,Anka,,Aktif,3500.0,2023-07-01,,Satınalma
+AI10003,Anka Anında Isıtıcı 003,Anında Isıtıcı,Termosifon,Anka,M0026,Pasif,2690.0,2023-03-01,2025-02-01,Satınalma
+AI10004,Anka Anında Isıtıcı 004,Anında Isıtıcı,Termosifon,Anka,M0026,Aktif,2910.0,2024-12-01,,Satınalma
+AI10005,Anka Anında Isıtıcı 005,Anında Isıtıcı,Termosifon,Anka,,Aktif,4880.0,2022-01-01,,Satınalma

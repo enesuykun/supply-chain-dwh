@@ -1,0 +1,12 @@
+# Veri üretici ile yeniden oluşturulur
+data/raw/*.csv
+data/output/*.csv
+!data/sample/*.csv
+
+.env
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+*.pbix.bak
+.DS_Store
