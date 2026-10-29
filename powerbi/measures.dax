@@ -1,0 +1,139 @@
+Satış Adet =
+SUM ( fact_sales[qty] )
+
+Satış Tutar =
+SUM ( fact_sales[net_amount] )
+
+İade Adet =
+CALCULATE ( - SUM ( fact_sales[qty] ), fact_sales[is_return] = TRUE () )
+
+İade Oranı =
+DIVIDE ( [İade Adet], [Satış Adet] + [İade Adet] )
+
+Satış Adet GY =
+CALCULATE ( [Satış Adet], SAMEPERIODLASTYEAR ( dim_date[full_date] ) )
+
+Satış YoY % =
+DIVIDE ( [Satış Adet] - [Satış Adet GY], [Satış Adet GY] )
+
+Satış Adet YTD =
+TOTALYTD ( [Satış Adet], dim_date[full_date] )
+
+Ortalama Birim Fiyat =
+DIVIDE ( [Satış Tutar], [Satış Adet] )
+
+Son Fatura Tarihi =
+CALCULATE ( MAX ( dim_date[full_date] ), fact_sales )
+
+Ay İçi Normalize Satış =
+VAR _son   = [Son Fatura Tarihi]
+VAR _gecen = DAY ( _son )
+VAR _ayGun = DAY ( EOMONTH ( _son, 0 ) )
+RETURN
+    IF ( NOT ISBLANK ( _son ), DIVIDE ( [Satış Adet], _gecen ) * _ayGun )
+
+Ay İçi Normalize vs TS % =
+DIVIDE ( [Ay İçi Normalize Satış], [TS Lag-1] ) - 1
+
+Bütçe Adet =
+SUM ( fact_budget[budget_qty] )
+
+Bütçe Tutar =
+SUM ( fact_budget[budget_amount] )
+
+Bütçe Gerçekleşme % =
+DIVIDE ( [Satış Adet], [Bütçe Adet] )
+
+TS Lag-1 =
+CALCULATE ( SUM ( fact_forecast[forecast_qty] ), fact_forecast[lag_month] = 1 )
+
+TS Versiyon Toplamı =
+CALCULATE (
+    SUM ( fact_forecast[forecast_qty] ),
+    USERELATIONSHIP ( dim_date[date_key], fact_forecast[version_date_key] )
+)
+
+TS / Bütçe % =
+DIVIDE ( [TS Lag-1], [Bütçe Adet] )
+
+ML Tahmin =
+SUM ( fact_ml_forecast[forecast_qty] )
+
+TS Doğruluk % =
+1 - DIVIDE (
+    SUM ( v_forecast_vs_actual[abs_error_qty] ),
+    SUM ( v_forecast_vs_actual[actual_qty] )
+)
+
+TS Bias % =
+DIVIDE (
+    SUM ( v_forecast_vs_actual[error_qty] ),
+    SUM ( v_forecast_vs_actual[actual_qty] )
+)
+
+Stok Adet =
+VAR _son = MAX ( fact_inventory_snapshot[date_key] )
+RETURN
+    CALCULATE ( SUM ( fact_inventory_snapshot[on_hand_qty] ), fact_inventory_snapshot[date_key] = _son )
+
+Stok 90+ Gün Adet =
+VAR _son = MAX ( fact_inventory_snapshot[date_key] )
+RETURN
+    CALCULATE ( SUM ( fact_inventory_snapshot[qty_90_plus] ), fact_inventory_snapshot[date_key] = _son )
+
+Stok 90+ Payı % =
+DIVIDE ( [Stok 90+ Gün Adet], [Stok Adet] )
+
+Ort. Aylık Satış (Son 3 Ay) =
+VAR _bitis = MAX ( dim_date[full_date] )
+RETURN
+    DIVIDE (
+        CALCULATE ( [Satış Adet], DATESINPERIOD ( dim_date[full_date], _bitis, -3, MONTH ) ),
+        3
+    )
+
+Stok Ay =
+DIVIDE ( [Stok Adet], [Ort. Aylık Satış (Son 3 Ay)] )
+
+Stok Durumu =
+SWITCH (
+    TRUE (),
+    ISBLANK ( [Stok Ay] ), "Satışsız stok",
+    [Stok Ay] < 0.5, "Kritik",
+    [Stok Ay] > 3, "Fazla",
+    "Normal"
+)
+
+Teslim Edilen Satır =
+CALCULATE ( COUNTROWS ( fact_purchase_order ), NOT ISBLANK ( fact_purchase_order[delivered_date_key] ) )
+
+OTIF % =
+DIVIDE (
+    CALCULATE ( COUNTROWS ( fact_purchase_order ), fact_purchase_order[is_otif] = TRUE () ),
+    [Teslim Edilen Satır]
+)
+
+Zamanında Teslim % =
+DIVIDE (
+    CALCULATE ( COUNTROWS ( fact_purchase_order ), fact_purchase_order[is_on_time] = TRUE () ),
+    [Teslim Edilen Satır]
+)
+
+Tam Teslim % =
+DIVIDE (
+    CALCULATE ( COUNTROWS ( fact_purchase_order ), fact_purchase_order[is_in_full] = TRUE () ),
+    [Teslim Edilen Satır]
+)
+
+Ort. Gecikme (Gün) =
+AVERAGE ( fact_purchase_order[delay_days] )
+
+Açık Sipariş Adet =
+CALCULATE (
+    SUM ( fact_purchase_order[ordered_qty] ),
+    ISBLANK ( fact_purchase_order[delivered_date_key] ),
+    REMOVEFILTERS ( dim_date )
+)
+
+OTIF Hedef Rengi =
+IF ( [OTIF %] >= 0.95, "#1baf7a", "#e34948" )
