@@ -1,0 +1,154 @@
+from __future__ import annotations
+
+import itertools
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+ROOT = Path(__file__).resolve().parents[1]
+RAW = ROOT / "data" / "raw"
+OUT = ROOT / "data" / "output"
+SEASON = 12
+HORIZON = 5
+BACKTEST_MONTHS = 6
+GAP = 2
+
+
+def load_monthly() -> tuple[pd.DataFrame, pd.DataFrame]:
+    products = pd.read_csv(RAW / "product_snapshot_2025_07.csv")[["product_code", "product_group"]]
+    sales = pd.read_csv(RAW / "sales.csv")
+
+    sales = sales.drop_duplicates(subset=["invoice_no", "product_code"])
+    sales = sales[sales["channel_code"] != "XX99"]
+    sales = sales.merge(products, on="product_code", how="left")
+    sales["month"] = pd.to_datetime(sales["invoice_date"]).dt.to_period("M").dt.to_timestamp()
+    actual = (sales.groupby(["product_group", "channel_code", "month"])["qty"].sum()
+                   .unstack("month", fill_value=0))
+
+    ts = pd.read_csv(RAW / "forecast.csv", parse_dates=["version_month", "target_month"])
+    ts = ts[(ts["target_month"] - ts["version_month"]).dt.days.between(28, 31)]
+    ts = ts.merge(products, on="product_code", how="left")
+    planner = (ts.groupby(["product_group", "channel_code", "target_month"])["forecast_qty"].sum()
+                 .unstack("target_month", fill_value=0))
+    return actual, planner
+
+
+def seasonal_naive(y: np.ndarray, h: int) -> np.ndarray:
+    return np.array([y[len(y) - SEASON + (k % SEASON)] for k in range(h)], dtype=float)
+
+
+def moving_average(y: np.ndarray, h: int, w: int = 3) -> np.ndarray:
+    return np.repeat(y[-w:].mean(), h)
+
+
+def _holt_winters(y: np.ndarray, h: int, alpha: float, beta: float, gamma: float, phi: float):
+    m = SEASON
+    level = y[:m].mean()
+    trend = (y[m:2 * m].mean() - y[:m].mean()) / m
+    season = list(y[:m] - level)
+    fitted = np.empty(len(y))
+    for t in range(len(y)):
+        s = season[t]
+        fitted[t] = level + phi * trend + s
+        prev_level = level
+        level = alpha * (y[t] - s) + (1 - alpha) * (prev_level + phi * trend)
+        trend = beta * (level - prev_level) + (1 - beta) * phi * trend
+        season.append(gamma * (y[t] - level) + (1 - gamma) * s)
+    n = len(y)
+    damp = np.cumsum(phi ** np.arange(1, h + 1))
+    fc = np.array([level + damp[k] * trend + season[n + (k % m)] for k in range(h)])
+    return fitted, fc
+
+
+GRID = list(itertools.product([0.1, 0.3, 0.5], [0.0, 0.05, 0.15], [0.05, 0.2, 0.4], [0.9, 0.98]))
+
+
+def holt_winters(y: np.ndarray, h: int) -> np.ndarray:
+    if len(y) < 2 * SEASON:
+        return seasonal_naive(y, h)
+    best, best_err = None, np.inf
+    for a, b, g, p in GRID:
+        fitted, fc = _holt_winters(y, h, a, b, g, p)
+        err = np.abs(y[SEASON:] - fitted[SEASON:]).sum()
+        if err < best_err:
+            best, best_err = fc, err
+    return best
+
+
+MODELS = {"SeasonalNaive": seasonal_naive, "MA3": moving_average, "HoltWinters": holt_winters}
+
+
+def wape(actual: np.ndarray, pred: np.ndarray) -> float:
+    return float(np.abs(pred - actual).sum() / max(actual.sum(), 1e-9))
+
+
+def backtest(actual: pd.DataFrame, planner: pd.DataFrame) -> pd.DataFrame:
+    months = list(actual.columns)
+    targets = months[-BACKTEST_MONTHS:]
+    rows = []
+    for (grp, ch), series in actual.iterrows():
+        y_all = series.values.astype(float)
+        if y_all[-12:].sum() < 30:
+            continue
+        for t in targets:
+            ti = months.index(t)
+            train = y_all[: ti - GAP + 1]
+            row = {"target_month": t, "product_group": grp, "channel_code": ch,
+                   "actual": y_all[ti],
+                   "PlanlamaTS": planner.loc[(grp, ch), t] if (grp, ch) in planner.index and t in planner.columns else 0}
+            for name, fn in MODELS.items():
+                row[name] = max(0.0, fn(train, GAP)[-1])
+
+            row["Hibrit(TS+HW)"] = (row["PlanlamaTS"] + row["HoltWinters"]) / 2
+            rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def summarize(bt: pd.DataFrame) -> pd.DataFrame:
+    out = []
+    for name in ["PlanlamaTS", *MODELS, "Hibrit(TS+HW)"]:
+        out.append({"model": name,
+                    "accuracy_1_minus_wape": round(1 - wape(bt["actual"].values, bt[name].values), 4),
+                    "bias": round(float((bt[name] - bt["actual"]).sum() / bt["actual"].sum()), 4)})
+    return pd.DataFrame(out).sort_values("accuracy_1_minus_wape", ascending=False)
+
+
+def forecast_forward(actual: pd.DataFrame, bt: pd.DataFrame) -> pd.DataFrame:
+    last = actual.columns[-1]
+    run_date = last + pd.DateOffset(months=1)
+    future = [run_date + pd.DateOffset(months=k) for k in range(HORIZON)]
+    rows = []
+    for (grp, ch), g in bt.groupby(["product_group", "channel_code"]):
+        scores = {m: wape(g["actual"].values, g[m].values) for m in MODELS}
+        best = min(scores, key=scores.get)
+        y = actual.loc[(grp, ch)].values.astype(float)
+        fc = np.maximum(0, MODELS[best](y, HORIZON))
+        for t, q in zip(future, fc):
+            rows.append({"run_date": run_date.strftime("%Y-%m-%d"), "target_month": t.strftime("%Y-%m-%d"),
+                         "product_group": grp, "channel_code": ch, "model_name": best,
+                         "forecast_qty": round(float(q), 2)})
+    return pd.DataFrame(rows)
+
+
+def main() -> None:
+    OUT.mkdir(parents=True, exist_ok=True)
+    actual, planner = load_monthly()
+    bt = backtest(actual, planner)
+    summary = summarize(bt)
+    fwd = forecast_forward(actual, bt)
+
+    bt.round({c: 2 for c in bt.select_dtypes("number").columns}).to_csv(OUT / "backtest_results.csv", index=False)
+    summary.to_csv(OUT / "model_comparison.csv", index=False)
+    fwd.to_csv(OUT / "ml_forecast.csv", index=False)
+
+    print(f"Backtest: {bt['target_month'].min():%Y-%m} – {bt['target_month'].max():%Y-%m}, "
+          f"{bt.groupby(['product_group', 'channel_code']).ngroups} seri\n")
+    print(summary.to_string(index=False))
+    print("\nSeçilen model dağılımı:")
+    print(fwd.drop_duplicates(["product_group", "channel_code"])["model_name"].value_counts().to_string())
+    print(f"\n{len(fwd)} satır ileri tahmin -> {OUT / 'ml_forecast.csv'}")
+
+
+if __name__ == "__main__":
+    main()
