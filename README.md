@@ -90,7 +90,7 @@ ortalaması alınır (49 serinin 40'ında seçiliyor). Çıktı `dw.fact_ml_fore
 yüklenerek Power BI'da TS ile yan yana izlenir. Backtest sonuçları da model bazında
 `dw.fact_ml_backtest` tablosuna yüklenir; yukarıdaki karşılaştırma `rpt.v_ml_model_comparison`
 view'ında ve Power BI'da `Model Doğruluk %` / `Model Bias %` ölçüleriyle ürün grubu, kanal ve ay
-kırılımında izlenebilir.
+kırılımında izlenebilir. Ayrıntılı tablolar: [`docs/model_results.md`](docs/model_results.md).
 
 ### Veri kalitesi
 
@@ -167,7 +167,7 @@ SELECT TOP 20 * FROM rpt.v_forecast_accuracy WHERE lag_month = 1 ORDER BY month_
 ├── powerbi/measures.dax              DAX ölçüleri ve model ilişkileri
 ├── tests/                            pytest birim testleri
 ├── .github/workflows/ci.yml          lint + test + veritabanısız uçtan uca kontrol
-├── docs/                             veri modeli, performans notları, görseller
+├── docs/                             veri modeli, model sonuçları, performans notları, görseller
 └── data/sample/                      her kaynak dosyadan ilk 200 satır
 ```
 
