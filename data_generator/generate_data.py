@@ -141,7 +141,6 @@ def build_sales(rng: np.random.Generator, products: pd.DataFrame, price_2025h2: 
 
     inflation = (1 + 0.025) ** ((days.year.values - 2024) * 12 + days.month.values - 1)
 
-    channel_codes = [c[0] for c in CHANNELS]
     frames = []
     for _, p in products.iterrows():
         n_ch = int(rng.integers(4, 7))

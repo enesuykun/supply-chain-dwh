@@ -84,8 +84,10 @@ Son 6 kapanmış ay için, planlama TS'sinin kesinleştiği andaki bilgiyle (hed
 
 ![Örnek tahmin](docs/img/example_forecast.png)
 
-Her seri için backtest'te en iyi sonuç veren model seçilip sonraki 5 ay tahmin edilir;
-çıktı `dw.fact_ml_forecast` tablosuna yüklenerek Power BI'da TS ile yan yana izlenir.
+Her seri için backtest'te en iyi sonuç veren model seçilip sonraki 5 ay tahmin edilir.
+Hibrit de bu seçimde adaydır: en güncel planlama TS versiyonu ile Holt-Winters tahmininin
+ortalaması alınır (49 serinin 40'ında seçiliyor). Çıktı `dw.fact_ml_forecast` tablosuna
+yüklenerek Power BI'da TS ile yan yana izlenir.
 
 ### Veri kalitesi
 
@@ -101,7 +103,7 @@ tedarikçi (genel OTIF ~%53). Bu tedarikçide 2025'in ikinci yarısındaki navlu
 
 ## Kurulum
 
-Gereksinimler: Python 3.10+, Docker Desktop (veya yerel SQL Server 2019+),
+Gereksinimler: Python 3.11+, Docker Desktop (veya yerel SQL Server 2019+),
 [ODBC Driver 18 for SQL Server](https://learn.microsoft.com/sql/connect/odbc/download-odbc-driver-for-sql-server).
 
 ```bash
@@ -127,6 +129,14 @@ Ardından `sql/05_performance_tuning.sql` scriptini SSMS veya Azure Data Studio'
 Power BI Desktop'ta *SQL Server → SupplyChainDW* kaynağına bağlanıp `dw` tablolarını ve
 `rpt.v_forecast_vs_actual`'ı içe aktarın; ilişkiler ve ölçüler `powerbi/measures.dax` içinde.
 
+Testler ve lint (CI'da her push'ta da çalışır):
+
+```bash
+pip install -r requirements-dev.txt
+ruff check .
+pytest
+```
+
 Örnek ETL çıktısı:
 
 ```
@@ -151,6 +161,8 @@ SELECT TOP 20 * FROM rpt.v_forecast_accuracy WHERE lag_month = 1 ORDER BY month_
 │   ├── forecast_model.py             backtest ve 5 aylık tahmin
 │   └── plot_results.py               README görselleri
 ├── powerbi/measures.dax              DAX ölçüleri ve model ilişkileri
+├── tests/                            pytest birim testleri
+├── .github/workflows/ci.yml          lint + test + veritabanısız uçtan uca kontrol
 ├── docs/                             veri modeli, performans notları, görseller
 └── data/sample/                      her kaynak dosyadan ilk 200 satır
 ```

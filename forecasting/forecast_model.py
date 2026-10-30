@@ -15,23 +15,40 @@ BACKTEST_MONTHS = 6
 GAP = 2
 
 
-def load_monthly() -> tuple[pd.DataFrame, pd.DataFrame]:
-    products = pd.read_csv(RAW / "product_snapshot_2025_07.csv")[["product_code", "product_group"]]
-    sales = pd.read_csv(RAW / "sales.csv")
+def clean_sales(sales: pd.DataFrame, channel_codes) -> pd.DataFrame:
+    """etl.usp_load_fact_sales ile aynı kurallar: eksik tarih/adet satırları atılır, aynı
+    fatura + ürün için ilk satır tutulur, kanal master'ında olmayan kanallar modele alınmaz
+    (DW'de -1 / Bilinmeyen kanala bağlanır)."""
+    s = sales.dropna(subset=["invoice_date", "qty"])
+    s = s.drop_duplicates(subset=["invoice_no", "product_code"])
+    return s[s["channel_code"].isin(set(channel_codes))]
 
-    sales = sales.drop_duplicates(subset=["invoice_no", "product_code"])
-    sales = sales[sales["channel_code"] != "XX99"]
+
+def load_sales() -> pd.DataFrame:
+    products = pd.read_csv(RAW / "product_snapshot_2025_07.csv")[["product_code", "product_group"]]
+    channels = pd.read_csv(RAW / "channel.csv")["channel_code"]
+    sales = clean_sales(pd.read_csv(RAW / "sales.csv"), channels)
     sales = sales.merge(products, on="product_code", how="left")
     sales["month"] = pd.to_datetime(sales["invoice_date"]).dt.to_period("M").dt.to_timestamp()
+    return sales
+
+
+def load_monthly() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Gerçekleşen, lag-1 planlama TS'si ve en güncel TS versiyonu (ileri tahmin için)."""
+    products = pd.read_csv(RAW / "product_snapshot_2025_07.csv")[["product_code", "product_group"]]
+    sales = load_sales()
     actual = (sales.groupby(["product_group", "channel_code", "month"])["qty"].sum()
                    .unstack("month", fill_value=0))
 
     ts = pd.read_csv(RAW / "forecast.csv", parse_dates=["version_month", "target_month"])
-    ts = ts[(ts["target_month"] - ts["version_month"]).dt.days.between(28, 31)]
     ts = ts.merge(products, on="product_code", how="left")
-    planner = (ts.groupby(["product_group", "channel_code", "target_month"])["forecast_qty"].sum()
-                 .unstack("target_month", fill_value=0))
-    return actual, planner
+    lag1 = ts[(ts["target_month"] - ts["version_month"]).dt.days.between(28, 31)]
+    planner = (lag1.groupby(["product_group", "channel_code", "target_month"])["forecast_qty"].sum()
+                   .unstack("target_month", fill_value=0))
+    latest = ts[ts["version_month"] == ts["version_month"].max()]
+    planner_latest = (latest.groupby(["product_group", "channel_code", "target_month"])["forecast_qty"].sum()
+                            .unstack("target_month", fill_value=0))
+    return actual, planner, planner_latest
 
 
 def seasonal_naive(y: np.ndarray, h: int) -> np.ndarray:
@@ -77,6 +94,7 @@ def holt_winters(y: np.ndarray, h: int) -> np.ndarray:
 
 
 MODELS = {"SeasonalNaive": seasonal_naive, "MA3": moving_average, "HoltWinters": holt_winters}
+HYBRID = "Hibrit(TS+HW)"
 
 
 def wape(actual: np.ndarray, pred: np.ndarray) -> float:
@@ -100,30 +118,38 @@ def backtest(actual: pd.DataFrame, planner: pd.DataFrame) -> pd.DataFrame:
             for name, fn in MODELS.items():
                 row[name] = max(0.0, fn(train, GAP)[-1])
 
-            row["Hibrit(TS+HW)"] = (row["PlanlamaTS"] + row["HoltWinters"]) / 2
+            row[HYBRID] = (row["PlanlamaTS"] + row["HoltWinters"]) / 2
             rows.append(row)
     return pd.DataFrame(rows)
 
 
 def summarize(bt: pd.DataFrame) -> pd.DataFrame:
     out = []
-    for name in ["PlanlamaTS", *MODELS, "Hibrit(TS+HW)"]:
+    for name in ["PlanlamaTS", *MODELS, HYBRID]:
         out.append({"model": name,
                     "accuracy_1_minus_wape": round(1 - wape(bt["actual"].values, bt[name].values), 4),
                     "bias": round(float((bt[name] - bt["actual"]).sum() / bt["actual"].sum()), 4)})
     return pd.DataFrame(out).sort_values("accuracy_1_minus_wape", ascending=False)
 
 
-def forecast_forward(actual: pd.DataFrame, bt: pd.DataFrame) -> pd.DataFrame:
+def forecast_forward(actual: pd.DataFrame, bt: pd.DataFrame, planner_latest: pd.DataFrame) -> pd.DataFrame:
+    """Her seri için backtest'te en düşük WAPE'yi veren model seçilir. Hibrit yalnızca
+    serinin tüm ufuk için güncel planlama TS'si varsa adaydır."""
     last = actual.columns[-1]
     run_date = last + pd.DateOffset(months=1)
     future = [run_date + pd.DateOffset(months=k) for k in range(HORIZON)]
     rows = []
     for (grp, ch), g in bt.groupby(["product_group", "channel_code"]):
-        scores = {m: wape(g["actual"].values, g[m].values) for m in MODELS}
+        has_ts = (grp, ch) in planner_latest.index and all(t in planner_latest.columns for t in future)
+        candidates = [*MODELS, HYBRID] if has_ts else list(MODELS)
+        scores = {m: wape(g["actual"].values, g[m].values) for m in candidates}
         best = min(scores, key=scores.get)
         y = actual.loc[(grp, ch)].values.astype(float)
-        fc = np.maximum(0, MODELS[best](y, HORIZON))
+        if best == HYBRID:
+            ts = planner_latest.loc[(grp, ch), future].values.astype(float)
+            fc = (ts + np.maximum(0, holt_winters(y, HORIZON))) / 2
+        else:
+            fc = np.maximum(0, MODELS[best](y, HORIZON))
         for t, q in zip(future, fc):
             rows.append({"run_date": run_date.strftime("%Y-%m-%d"), "target_month": t.strftime("%Y-%m-%d"),
                          "product_group": grp, "channel_code": ch, "model_name": best,
@@ -133,10 +159,10 @@ def forecast_forward(actual: pd.DataFrame, bt: pd.DataFrame) -> pd.DataFrame:
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
-    actual, planner = load_monthly()
+    actual, planner, planner_latest = load_monthly()
     bt = backtest(actual, planner)
     summary = summarize(bt)
-    fwd = forecast_forward(actual, bt)
+    fwd = forecast_forward(actual, bt, planner_latest)
 
     bt.round({c: 2 for c in bt.select_dtypes("number").columns}).to_csv(OUT / "backtest_results.csv", index=False)
     summary.to_csv(OUT / "model_comparison.csv", index=False)

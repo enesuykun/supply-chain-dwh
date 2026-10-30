@@ -1,9 +1,11 @@
 from pathlib import Path
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
+from forecast_model import load_sales
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "data" / "output"
@@ -45,12 +47,8 @@ def model_comparison():
 
 
 def example_series(group="Elektrikli Termosifon", channel="BAY"):
-    raw = ROOT / "data" / "raw"
-    p = pd.read_csv(raw / "product_snapshot_2025_07.csv")[["product_code", "product_group"]]
-    s = pd.read_csv(raw / "sales.csv").drop_duplicates(["invoice_no", "product_code"])
-    s = s[s["channel_code"] == channel].merge(p, on="product_code")
-    s = s[s["product_group"] == group]
-    s["month"] = pd.to_datetime(s["invoice_date"]).dt.to_period("M").dt.to_timestamp()
+    s = load_sales()
+    s = s[(s["channel_code"] == channel) & (s["product_group"] == group)]
     act = s.groupby("month")["qty"].sum()
     fc = pd.read_csv(OUT / "ml_forecast.csv", parse_dates=["target_month"])
     fc = fc[(fc["product_group"] == group) & (fc["channel_code"] == channel)]
