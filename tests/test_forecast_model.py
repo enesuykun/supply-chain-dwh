@@ -6,6 +6,7 @@ from forecast_model import (
     MODELS,
     SEASON,
     _holt_winters,
+    backtest_long,
     clean_sales,
     forecast_forward,
     holt_winters,
@@ -91,3 +92,15 @@ def test_forecast_forward_skips_hybrid_without_full_planner_ts():
     fwd = forecast_forward(actual, bt, planner_latest)
     assert HYBRID not in set(fwd["model_name"])
     assert fwd["model_name"].nunique() == 1
+
+
+def test_backtest_long_has_one_row_per_model():
+    bt = pd.DataFrame({"target_month": [pd.Timestamp("2026-09-01")], "product_group": ["G"], "channel_code": ["BAY"],
+                       "actual": [100.0], "PlanlamaTS": [110.0], **{m: [90.0] for m in MODELS}, HYBRID: [100.004]})
+    long = backtest_long(bt, pd.Timestamp("2026-10-01"))
+    assert list(long.columns) == ["run_date", "target_month", "product_group", "channel_code", "model_name",
+                                  "forecast_qty", "actual_qty"]
+    assert sorted(long["model_name"]) == sorted(["PlanlamaTS", *MODELS, HYBRID])
+    assert set(long["run_date"]) == {"2026-10-01"} and set(long["target_month"]) == {"2026-09-01"}
+    assert (long["actual_qty"] == 100.0).all()
+    assert long.loc[long["model_name"] == HYBRID, "forecast_qty"].item() == 100.0

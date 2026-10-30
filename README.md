@@ -65,7 +65,7 @@ flowchart LR
 | Raporlama katmanı | Tahmin doğruluğu (SKU bazlı WAPE + bias), bütçe kıyası, Stok Ay, yaşlandırma, OTIF | [`sql/04_reporting_views.sql`](sql/04_reporting_views.sql) |
 | Performans | Columnstore, SARGable filtre, covering index, window function, Query Store | [`sql/05_performance_tuning.sql`](sql/05_performance_tuning.sql) |
 | Tahminleme | Holt-Winters (numpy ile sıfırdan), mevsimsel naive, MA3; rolling-origin backtest | [`forecasting/forecast_model.py`](forecasting/forecast_model.py) |
-| Power BI | Semi-additive stok, time intelligence, ay içi normalize satış, OTIF ölçüleri | [`powerbi/measures.dax`](powerbi/measures.dax) |
+| Power BI | Semi-additive stok, time intelligence, ay içi normalize satış, OTIF, model karşılaştırma ölçüleri | [`powerbi/measures.dax`](powerbi/measures.dax) |
 
 ## Sonuçlar
 
@@ -87,7 +87,10 @@ Son 6 kapanmış ay için, planlama TS'sinin kesinleştiği andaki bilgiyle (hed
 Her seri için backtest'te en iyi sonuç veren model seçilip sonraki 5 ay tahmin edilir.
 Hibrit de bu seçimde adaydır: en güncel planlama TS versiyonu ile Holt-Winters tahmininin
 ortalaması alınır (49 serinin 40'ında seçiliyor). Çıktı `dw.fact_ml_forecast` tablosuna
-yüklenerek Power BI'da TS ile yan yana izlenir.
+yüklenerek Power BI'da TS ile yan yana izlenir. Backtest sonuçları da model bazında
+`dw.fact_ml_backtest` tablosuna yüklenir; yukarıdaki karşılaştırma `rpt.v_ml_model_comparison`
+view'ında ve Power BI'da `Model Doğruluk %` / `Model Bias %` ölçüleriyle ürün grubu, kanal ve ay
+kırılımında izlenebilir.
 
 ### Veri kalitesi
 
@@ -127,7 +130,7 @@ python etl/run_pipeline.py
 Ardından `sql/05_performance_tuning.sql` scriptini SSMS veya Azure Data Studio'da adım adım
 çalıştırıp ölçümleri [`docs/performance_notes.md`](docs/performance_notes.md) tablosuna işleyin.
 Power BI Desktop'ta *SQL Server → SupplyChainDW* kaynağına bağlanıp `dw` tablolarını ve
-`rpt.v_forecast_vs_actual`'ı içe aktarın; ilişkiler ve ölçüler `powerbi/measures.dax` içinde.
+`rpt.v_forecast_vs_actual`'ı içe aktarın (`fact_ml_backtest` dahil); ilişkiler ve ölçüler `powerbi/measures.dax` içinde.
 
 Testler ve lint (CI'da her push'ta da çalışır):
 
@@ -142,6 +145,7 @@ pytest
 ```
 SELECT * FROM etl.load_log ORDER BY load_id;
 SELECT * FROM rpt.v_dq_summary;
+SELECT * FROM rpt.v_ml_model_comparison ORDER BY forecast_accuracy DESC;
 SELECT TOP 20 * FROM rpt.v_forecast_accuracy WHERE lag_month = 1 ORDER BY month_start DESC;
 ```
 

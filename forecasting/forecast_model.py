@@ -132,11 +132,26 @@ def summarize(bt: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(out).sort_values("accuracy_1_minus_wape", ascending=False)
 
 
+def next_run_date(actual: pd.DataFrame) -> pd.Timestamp:
+    return actual.columns[-1] + pd.DateOffset(months=1)
+
+
+def backtest_long(bt: pd.DataFrame, run_date: pd.Timestamp) -> pd.DataFrame:
+    """Backtest'i dw.fact_ml_backtest grain'ine çevirir: hedef ay × grup × kanal × model."""
+    long = bt.melt(id_vars=["target_month", "product_group", "channel_code", "actual"],
+                   value_vars=["PlanlamaTS", *MODELS, HYBRID], var_name="model_name", value_name="forecast_qty")
+    long.insert(0, "run_date", run_date.strftime("%Y-%m-%d"))
+    long["target_month"] = pd.to_datetime(long["target_month"]).dt.strftime("%Y-%m-%d")
+    long = long.rename(columns={"actual": "actual_qty"})
+    long[["forecast_qty", "actual_qty"]] = long[["forecast_qty", "actual_qty"]].astype(float).round(2)
+    return long[["run_date", "target_month", "product_group", "channel_code", "model_name",
+                 "forecast_qty", "actual_qty"]]
+
+
 def forecast_forward(actual: pd.DataFrame, bt: pd.DataFrame, planner_latest: pd.DataFrame) -> pd.DataFrame:
     """Her seri için backtest'te en düşük WAPE'yi veren model seçilir. Hibrit yalnızca
     serinin tüm ufuk için güncel planlama TS'si varsa adaydır."""
-    last = actual.columns[-1]
-    run_date = last + pd.DateOffset(months=1)
+    run_date = next_run_date(actual)
     future = [run_date + pd.DateOffset(months=k) for k in range(HORIZON)]
     rows = []
     for (grp, ch), g in bt.groupby(["product_group", "channel_code"]):
@@ -167,6 +182,7 @@ def main() -> None:
     bt.round({c: 2 for c in bt.select_dtypes("number").columns}).to_csv(OUT / "backtest_results.csv", index=False)
     summary.to_csv(OUT / "model_comparison.csv", index=False)
     fwd.to_csv(OUT / "ml_forecast.csv", index=False)
+    backtest_long(bt, next_run_date(actual)).to_csv(OUT / "ml_backtest.csv", index=False)
 
     print(f"Backtest: {bt['target_month'].min():%Y-%m} – {bt['target_month'].max():%Y-%m}, "
           f"{bt.groupby(['product_group', 'channel_code']).ngroups} seri\n")

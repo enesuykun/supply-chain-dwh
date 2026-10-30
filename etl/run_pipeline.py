@@ -31,6 +31,7 @@ FACT_FILES = {
     "stg.inventory": RAW / "inventory.csv",
     "stg.purchase_order": RAW / "purchase_order.csv",
     "stg.ml_forecast": OUTPUT / "ml_forecast.csv",
+    "stg.ml_backtest": OUTPUT / "ml_backtest.csv",
 }
 CHUNK = 20_000
 
