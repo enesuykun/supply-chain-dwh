@@ -1,6 +1,6 @@
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["forecasting", "etl"]
+pythonpath = ["forecasting", "etl", "integration/sap"]
 
 [tool.ruff]
 line-length = 130

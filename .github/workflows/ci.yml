@@ -24,4 +24,5 @@ jobs:
         run: |
           python data_generator/generate_data.py
           python forecasting/forecast_model.py
+          python integration/sap/export_pir.py
           python etl/run_pipeline.py --dry-run
