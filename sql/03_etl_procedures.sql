@@ -576,6 +576,47 @@ BEGIN
 END;
 GO
 
+CREATE OR ALTER PROCEDURE etl.usp_load_fact_ml_backtest
+AS
+BEGIN
+    SET NOCOUNT ON; SET XACT_ABORT ON;
+    DECLARE @load_id INT, @ins INT = 0, @del INT = 0, @err NVARCHAR(4000);
+    EXEC etl.usp_log_start @proc_name = N'etl.usp_load_fact_ml_backtest', @load_id = @load_id OUTPUT;
+    BEGIN TRY
+        BEGIN TRAN;
+        DELETE f
+          FROM dw.fact_ml_backtest f
+         WHERE f.run_date_key IN (SELECT DISTINCT CONVERT(INT, CONVERT(CHAR(8), run_date, 112)) FROM stg.ml_backtest);
+        SET @del = @@ROWCOUNT;
+
+        INSERT dw.fact_ml_backtest (run_date_key, target_date_key, product_group_key, channel_key,
+                                    model_name, forecast_qty, actual_qty, load_id)
+        SELECT CONVERT(INT, CONVERT(CHAR(8), s.run_date, 112)),
+               CONVERT(INT, CONVERT(CHAR(8), s.target_month, 112)),
+               ISNULL(g.product_group_key, -1),
+               ISNULL(c.channel_key, -1),
+               s.model_name,
+               SUM(s.forecast_qty),
+               SUM(s.actual_qty),
+               @load_id
+        FROM stg.ml_backtest s
+        LEFT JOIN dw.dim_product_group g ON g.product_group = s.product_group
+        LEFT JOIN dw.dim_channel c       ON c.channel_code = s.channel_code
+        WHERE s.run_date IS NOT NULL
+        GROUP BY s.run_date, s.target_month, ISNULL(g.product_group_key, -1), ISNULL(c.channel_key, -1), s.model_name;
+        SET @ins = @@ROWCOUNT;
+        COMMIT;
+        EXEC etl.usp_log_end @load_id = @load_id, @rows_inserted = @ins, @rows_deleted = @del;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK;
+        SET @err = ERROR_MESSAGE();
+        EXEC etl.usp_log_end @load_id = @load_id, @status = 'FAILED', @error_message = @err;
+        THROW;
+    END CATCH
+END;
+GO
+
 CREATE OR ALTER PROCEDURE etl.usp_load_dimensions
     @effective_date DATE
 AS
@@ -600,5 +641,6 @@ BEGIN
     IF EXISTS (SELECT 1 FROM stg.inventory)      EXEC etl.usp_load_fact_inventory;
     IF EXISTS (SELECT 1 FROM stg.purchase_order) EXEC etl.usp_load_fact_purchase_order;
     IF EXISTS (SELECT 1 FROM stg.ml_forecast)    EXEC etl.usp_load_fact_ml_forecast;
+    IF EXISTS (SELECT 1 FROM stg.ml_backtest)    EXEC etl.usp_load_fact_ml_backtest;
 END;
 GO
