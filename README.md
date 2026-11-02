@@ -1,4 +1,4 @@
-# Tedarik Zinciri Veri Ambarı ve Satış Tahminleme
+# Tedarik Zinciri Satış Tahminleme
 
 **SQL Server · T-SQL · Python · Power BI**
 
