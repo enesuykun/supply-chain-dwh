@@ -6,8 +6,8 @@ Bir beyaz eşya üreticisinin yurt içi tedarik zinciri planlaması için uçtan
 çözümü: dağınık kaynak dosyalardan **star schema veri ambarı**, **T-SQL ile ETL**,
 **performans iyileştirme**, **istatistiksel tahmin modeli** ve **Power BI KPI katmanı**.
 
-> Tüm veriler `data_generator/` ile üretilmiş **sentetik** verilerdir. "Anka Ev Aletleri A.Ş."
-> ve markaları kurgusaldır; gerçek bir firmanın verisi kullanılmamıştır.
+> Tüm veriler **sentetik** verilerdir. "Anka Ev Aletleri A.Ş."
+> ve markaları kurgusaldır; gerçek bir veri kullanılmamıştır.
 
 ---
 
@@ -15,7 +15,7 @@ Bir beyaz eşya üreticisinin yurt içi tedarik zinciri planlaması için uçtan
 
 Planlama ekipleri her ay aynı soruları farklı Excel dosyalarını birleştirerek cevaplar:
 
-- Geçen ay kesinleşen **TS (Tahmini Satış)** gerçekleşmeye göre ne kadar doğruydu, hangi yöne saptı?
+- Geçen ay kesinleşen **Tahmini Satış** gerçekleşmeye göre ne kadar doğruydu, hangi yöne saptı?
 - Kanal ve ürün grubu bazında **bütçe – TS – gerçekleşen** farkı ne?
 - Hangi ürünlerde stok kaç aylık satışı karşılıyor (**Stok Ay**), ne kadarı 90 günü aştı?
 - Dışarıdan alınan ürünlerde tedarikçiler **OTIF** hedefini (%95) tutturuyor mu?
