@@ -70,6 +70,14 @@ flowchart LR
 
 ## Sonuçlar
 
+### Yönetici özeti
+
+![Yönetici özeti önizlemesi](docs/img/dashboard_preview.png)
+
+Tek sayfalık Power BI yönetici özeti: satış, bütçe, tahmin doğruluğu, stok ve tedarikçi OTIF'i bir arada.
+Görsel, [sayfa belirtimine](docs/powerbi_dashboard_spec.md) göre SQL Server'daki örnek veriden üretilmiş bir
+**önizlemedir**, gerçek bir Power BI raporu değildir.
+
 ### Tahmin modeli: planlamacı + model birlikte daha iyi
 
 Son 6 kapanmış ay için, planlama TS'sinin kesinleştiği andaki bilgiyle (hedef aydan 2 ay
