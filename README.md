@@ -132,7 +132,8 @@ python etl/run_pipeline.py
 Ardından `sql/05_performance_tuning.sql` scriptini SSMS veya Azure Data Studio'da adım adım
 çalıştırıp ölçümleri [`docs/performance_notes.md`](docs/performance_notes.md) tablosuna işleyin.
 Power BI Desktop'ta *SQL Server → SupplyChainDW* kaynağına bağlanıp `dw` tablolarını ve
-`rpt.v_forecast_vs_actual`'ı içe aktarın (`fact_ml_backtest` dahil); ilişkiler ve ölçüler `powerbi/measures.dax` içinde.
+`rpt.v_forecast_vs_actual`'ı içe aktarın (`fact_ml_backtest` dahil); ilişkiler ve ölçüler `powerbi/measures.dax` içinde. Tek sayfalık yönetici özeti için görsel yerleşimi, renkler,
+eşikler ve beklenen değerler [`docs/powerbi_dashboard_spec.md`](docs/powerbi_dashboard_spec.md) belgesinde.
 
 Testler ve lint (CI'da her push'ta da çalışır):
 
@@ -170,7 +171,7 @@ SELECT TOP 20 * FROM rpt.v_forecast_accuracy WHERE lag_month = 1 ORDER BY month_
 ├── powerbi/measures.dax              DAX ölçüleri ve model ilişkileri
 ├── tests/                            pytest birim testleri
 ├── .github/workflows/ci.yml          lint + test + veritabanısız uçtan uca kontrol
-├── docs/                             veri modeli, model sonuçları, performans notları, görseller
+├── docs/                             veri modeli, model sonuçları, Power BI sayfa belirtimi, performans notları
 └── data/sample/                      her kaynak dosyadan ilk 200 satır
 ```
 
