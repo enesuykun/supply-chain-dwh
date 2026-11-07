@@ -141,7 +141,6 @@ def build_sales(rng: np.random.Generator, products: pd.DataFrame, price_2025h2: 
 
     inflation = (1 + 0.025) ** ((days.year.values - 2024) * 12 + days.month.values - 1)
 
-    channel_codes = [c[0] for c in CHANNELS]
     frames = []
     for _, p in products.iterrows():
         n_ch = int(rng.integers(4, 7))
@@ -200,7 +199,7 @@ def build_sales(rng: np.random.Generator, products: pd.DataFrame, price_2025h2: 
     returns["invoice_date"] = returns["invoice_date"] + pd.to_timedelta(rng.integers(5, 25, len(returns)), unit="D")
     returns = returns[returns["invoice_date"] <= END]
     returns["qty"] = -np.maximum(1, (returns["qty"] * 0.5).astype(int))
-    returns["net_amount"] = -returns["net_amount"].abs() * 0.5
+    returns["net_amount"] = np.round(-returns["net_amount"].abs() * 0.5, 2)
     returns["invoice_no"] = "I" + returns["invoice_no"].str[1:]
     dups = sales.sample(n=int(n * 0.002), random_state=2)
     unknown = sales.sample(n=40, random_state=3).copy()

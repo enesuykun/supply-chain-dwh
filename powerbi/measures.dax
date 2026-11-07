@@ -59,6 +59,37 @@ DIVIDE ( [TS Lag-1], [Bütçe Adet] )
 ML Tahmin =
 SUM ( fact_ml_forecast[forecast_qty] )
 
+// Backtest ölçüleri: her model aynı gerçekleşeni tekrar taşıdığından yalnızca tek model
+// seçiliyken (ör. model_name eksende) hesaplanır; filtre yoksa son çalıştırma kullanılır.
+Model Doğruluk % =
+VAR _run = MAX ( fact_ml_backtest[run_date_key] )
+RETURN
+    IF (
+        HASONEVALUE ( fact_ml_backtest[model_name] ),
+        CALCULATE (
+            1 - DIVIDE ( SUM ( fact_ml_backtest[abs_error_qty] ), SUM ( fact_ml_backtest[actual_qty] ) ),
+            fact_ml_backtest[run_date_key] = _run
+        )
+    )
+
+Model Bias % =
+VAR _run = MAX ( fact_ml_backtest[run_date_key] )
+RETURN
+    IF (
+        HASONEVALUE ( fact_ml_backtest[model_name] ),
+        CALCULATE (
+            DIVIDE ( SUM ( fact_ml_backtest[error_qty] ), SUM ( fact_ml_backtest[actual_qty] ) ),
+            fact_ml_backtest[run_date_key] = _run
+        )
+    )
+
+Model Doğruluk Farkı vs TS =
+VAR _model = [Model Doğruluk %]
+VAR _ts =
+    CALCULATE ( [Model Doğruluk %], fact_ml_backtest[model_name] = "PlanlamaTS" )
+RETURN
+    IF ( NOT ISBLANK ( _model ), _model - _ts )
+
 TS Doğruluk % =
 1 - DIVIDE (
     SUM ( v_forecast_vs_actual[abs_error_qty] ),

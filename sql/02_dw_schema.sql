@@ -2,7 +2,8 @@ USE SupplyChainDW;
 GO
 
 DROP TABLE IF EXISTS dw.fact_sales, dw.fact_forecast, dw.fact_budget,
-                     dw.fact_inventory_snapshot, dw.fact_purchase_order, dw.fact_ml_forecast;
+                     dw.fact_inventory_snapshot, dw.fact_purchase_order, dw.fact_ml_forecast,
+                     dw.fact_ml_backtest;
 DROP TABLE IF EXISTS dw.dim_product, dw.dim_product_group, dw.dim_channel,
                      dw.dim_warehouse, dw.dim_supplier, dw.dim_date;
 DROP TABLE IF EXISTS etl.dq_issue, etl.load_log;
@@ -199,6 +200,20 @@ CREATE TABLE dw.fact_ml_forecast (
     forecast_qty       DECIMAL(12,2) NOT NULL,
     load_id            INT NOT NULL,
     CONSTRAINT pk_fact_ml_forecast PRIMARY KEY (run_date_key, target_date_key, product_group_key, channel_key, model_name)
+);
+
+CREATE TABLE dw.fact_ml_backtest (
+    run_date_key       INT NOT NULL,
+    target_date_key    INT NOT NULL,
+    product_group_key  INT NOT NULL,
+    channel_key        INT NOT NULL,
+    model_name         NVARCHAR(40) NOT NULL,
+    forecast_qty       DECIMAL(12,2) NOT NULL,
+    actual_qty         DECIMAL(12,2) NOT NULL,
+    error_qty          AS (forecast_qty - actual_qty) PERSISTED,
+    abs_error_qty      AS (ABS(forecast_qty - actual_qty)) PERSISTED,
+    load_id            INT NOT NULL,
+    CONSTRAINT pk_fact_ml_backtest PRIMARY KEY (run_date_key, target_date_key, product_group_key, channel_key, model_name)
 );
 GO
 

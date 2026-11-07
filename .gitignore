@@ -10,3 +10,6 @@ __pycache__/
 .ipynb_checkpoints/
 *.pbix.bak
 .DS_Store
+
+# Gerçek SAP eşlemeleri ve yükleme dosyaları
+integration/sap/private/

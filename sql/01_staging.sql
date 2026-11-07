@@ -3,7 +3,7 @@ GO
 
 DROP TABLE IF EXISTS stg.product, stg.channel, stg.warehouse, stg.supplier,
                      stg.sales, stg.forecast, stg.budget, stg.inventory,
-                     stg.purchase_order, stg.ml_forecast;
+                     stg.purchase_order, stg.ml_forecast, stg.ml_backtest;
 GO
 
 CREATE TABLE stg.product (
@@ -97,5 +97,16 @@ CREATE TABLE stg.ml_forecast (
     channel_code   NVARCHAR(10)   NULL,
     model_name     NVARCHAR(40)   NULL,
     forecast_qty   DECIMAL(12,2)  NULL
+);
+GO
+
+CREATE TABLE stg.ml_backtest (
+    run_date       DATE           NULL,
+    target_month   DATE           NULL,
+    product_group  NVARCHAR(50)   NULL,
+    channel_code   NVARCHAR(10)   NULL,
+    model_name     NVARCHAR(40)   NULL,
+    forecast_qty   DECIMAL(12,2)  NULL,
+    actual_qty     DECIMAL(12,2)  NULL
 );
 GO

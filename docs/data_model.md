@@ -29,6 +29,8 @@ erDiagram
     dim_product_group ||--o{ dim_product : product_group_key
     dim_product_group ||--o{ fact_ml_forecast : product_group_key
     dim_channel ||--o{ fact_ml_forecast : channel_key
+    dim_product_group ||--o{ fact_ml_backtest : product_group_key
+    dim_channel ||--o{ fact_ml_backtest : channel_key
 
     dim_product {
         int product_key PK
@@ -81,6 +83,7 @@ erDiagram
 | `fact_inventory_snapshot` | Ay sonu × ürün × depo | Periodic snapshot | Gelen snapshot tarihlerini sil + ekle |
 | `fact_purchase_order` | Sipariş satırı | Accumulating snapshot | `MERGE` (teslimat gerçekleştikçe güncellenir) |
 | `fact_ml_forecast` | Çalıştırma × hedef ay × grup × kanal × model | Snapshot | Gelen çalıştırma tarihini sil + ekle |
+| `fact_ml_backtest` | Çalıştırma × hedef ay × grup × kanal × model (PlanlamaTS dahil) | Snapshot | Gelen çalıştırma tarihini sil + ekle |
 
 ## Tasarım kararları
 
@@ -105,10 +108,12 @@ erDiagram
 | `dim_date[date_key]` | `fact_sales[date_key]`, `fact_budget[date_key]`, `fact_inventory_snapshot[date_key]` | |
 | `dim_date[date_key]` | `fact_forecast[target_date_key]` | aktif |
 | `dim_date[date_key]` | `fact_forecast[version_date_key]` | pasif, `USERELATIONSHIP` ile |
-| `dim_date[date_key]` | `fact_purchase_order[delivered_date_key]`, `fact_ml_forecast[target_date_key]` | |
+| `dim_date[date_key]` | `fact_purchase_order[delivered_date_key]`, `fact_ml_forecast[target_date_key]`, `fact_ml_backtest[target_date_key]` | |
 | `dim_product[product_key]` | `fact_sales`, `fact_forecast`, `fact_inventory_snapshot`, `fact_purchase_order` | |
-| `dim_product_group[product_group_key]` | `dim_product`, `fact_budget`, `fact_ml_forecast` | |
-| `dim_channel[channel_key]` | `fact_sales`, `fact_forecast`, `fact_budget`, `fact_ml_forecast` | |
+| `dim_product_group[product_group_key]` | `dim_product`, `fact_budget`, `fact_ml_forecast`, `fact_ml_backtest` | |
+| `dim_channel[channel_key]` | `fact_sales`, `fact_forecast`, `fact_budget`, `fact_ml_forecast`, `fact_ml_backtest` | |
 | `dim_supplier[supplier_key]` | `fact_purchase_order` | |
 
 `dim_date` tarih tablosu olarak işaretlenir. Tahmin doğruluğu ölçüleri için `rpt.v_forecast_vs_actual` ayrıca içe aktarılır.
+Model karşılaştırması için `fact_ml_backtest` içe aktarılır; `model_name` eksene konup
+`Model Doğruluk %` ve `Model Bias %` ölçüleriyle README'deki karşılaştırma grafiği üretilir.

@@ -207,3 +207,24 @@ FROM etl.dq_issue q
 JOIN etl.load_log l ON l.load_id = q.load_id
 GROUP BY l.load_id, l.proc_name, l.start_time, q.source_table, q.issue_type;
 GO
+
+CREATE OR ALTER VIEW rpt.v_ml_model_comparison
+AS
+WITH last_run AS (
+    SELECT MAX(run_date_key) AS run_date_key FROM dw.fact_ml_backtest
+)
+SELECT d.full_date AS run_date,
+       f.model_name,
+       MIN(t.month_start) AS first_target_month,
+       MAX(t.month_start) AS last_target_month,
+       COUNT(DISTINCT CONCAT(f.product_group_key, N'|', f.channel_key)) AS series_count,
+       SUM(f.forecast_qty)  AS forecast_qty,
+       SUM(f.actual_qty)    AS actual_qty,
+       CAST(1 - SUM(f.abs_error_qty) * 1.0 / NULLIF(SUM(f.actual_qty), 0) AS DECIMAL(9,4)) AS forecast_accuracy,
+       CAST(SUM(f.error_qty) * 1.0 / NULLIF(SUM(f.actual_qty), 0) AS DECIMAL(9,4))         AS forecast_bias
+FROM dw.fact_ml_backtest f
+JOIN last_run r    ON r.run_date_key = f.run_date_key
+JOIN dw.dim_date d ON d.date_key = f.run_date_key
+JOIN dw.dim_date t ON t.date_key = f.target_date_key
+GROUP BY d.full_date, f.model_name;
+GO
