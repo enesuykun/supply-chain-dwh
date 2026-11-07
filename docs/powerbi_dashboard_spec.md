@@ -13,6 +13,11 @@ hedefi tutturuyor mu.
 > henüz çalıştırılmadı; kurulumdan sonra [Doğrulama değerleri](#6-doğrulama-değerleri) tablosuyla
 > karşılaştırın.
 
+![Sayfa önizlemesi](img/dashboard_preview.png)
+
+*Belirtime göre üretilmiş statik önizleme (gerçek Power BI raporu değil). Tarayıcıda açılan sürümü:
+[`dashboard_preview.html`](dashboard_preview.html); `python powerbi/build_preview.py` ile yeniden üretilir.*
+
 ## 1. Veri modeli
 
 `SQL Server → SupplyChainDW`, **Import** modu.
@@ -75,7 +80,7 @@ alt etiketinde yazar. Kart: "Kart (yeni)" görseli, değer + referans etiketi.
 | # | Başlık | Ölçü | Filtre (görsel düzeyi) | Referans etiketi | Renk kuralı |
 |---|---|---|---|---|---|
 | K1 | Satış, Eyl 2026 | `Satış Adet` | `dim_date[month_start]` = 2026-09-01 | `Satış YoY %` ("geçen yıla göre") | YoY ≥ 0 yeşil, < 0 kırmızı |
-| K2 | Bütçe gerçekleşme, Oca–Eyl 2026 | `Bütçe Gerçekleşme %` | `dim_date[month_start]` 2026-01-01 … 2026-09-01 | `TS / Bütçe %` ("TS bütçeye göre") | ≥ %100 yeşil, %95–100 sarı, < %95 kırmızı |
+| K2 | Bütçe, Oca–Eyl 2026 | `Bütçe Gerçekleşme %` | `dim_date[month_start]` 2026-01-01 … 2026-09-01 | `TS / Bütçe %` ("TS bütçeye göre") | ≥ %100 yeşil, %95–100 sarı, < %95 kırmızı |
 | K3 | Planlama TS doğruluğu | `Model Doğruluk %` | `fact_ml_backtest[model_name]` = `PlanlamaTS` | `Model Bias %` ("sapma") | ≥ %90 yeşil, %80–90 sarı, < %80 kırmızı |
 | K4 | Hibrit model doğruluğu | `Model Doğruluk %` | `fact_ml_backtest[model_name]` = `Hibrit(TS+HW)` | `Model Doğruluk Farkı vs TS` ("TS'ye göre fark, puan") | K3 ile aynı |
 | K5 | Stok kapsama, Eyl 2026 | `Stok Ay` | `dim_date[month_start]` = 2026-09-01 | `Stok 90+ Payı %` ("90 günü aşan") | 0,5–3 ay yeşil, dışı kırmızı |

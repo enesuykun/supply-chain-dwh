@@ -133,7 +133,8 @@ Ardından `sql/05_performance_tuning.sql` scriptini SSMS veya Azure Data Studio'
 çalıştırıp ölçümleri [`docs/performance_notes.md`](docs/performance_notes.md) tablosuna işleyin.
 Power BI Desktop'ta *SQL Server → SupplyChainDW* kaynağına bağlanıp `dw` tablolarını ve
 `rpt.v_forecast_vs_actual`'ı içe aktarın (`fact_ml_backtest` dahil); ilişkiler ve ölçüler `powerbi/measures.dax` içinde. Tek sayfalık yönetici özeti için görsel yerleşimi, renkler,
-eşikler ve beklenen değerler [`docs/powerbi_dashboard_spec.md`](docs/powerbi_dashboard_spec.md) belgesinde.
+eşikler ve beklenen değerler [`docs/powerbi_dashboard_spec.md`](docs/powerbi_dashboard_spec.md) belgesinde;
+tarayıcıda açılan önizleme: [`docs/dashboard_preview.html`](docs/dashboard_preview.html).
 
 Testler ve lint (CI'da her push'ta da çalışır):
 
